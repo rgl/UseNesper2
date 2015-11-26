@@ -13,8 +13,55 @@ namespace UseNEsper2
         public string Service { get; set; }
     }
 
+    public class PropertiesEvent
+    {
+        public IDictionary<string, object> Properties { get; set; }
+    }
+
     public class EplTests
     {
+        [Fact]
+        public void CastPropertyToIntRegression()
+        {
+            string expected;
+            string resultProperties;
+            var results = new List<EventBean[]>();
+
+            using (var engine = CreateEngine())
+            {
+                engine.EPAdministrator.Configuration.AddEventType("PropertiesEvent", typeof(PropertiesEvent));
+
+                var statement = engine.EPAdministrator.CreateEPL(@"
+                    select cast(cast(Properties('value'), string), int) as Value
+                    from PropertiesEvent
+                ");
+
+                resultProperties = GetStatementProperties(statement);
+
+                expected = @"
+                    Value:Int32
+
+                    #0.0: Value:Int32=1
+                ";
+
+                statement.Events += (sender, args) => results.Add(args.NewEvents);
+
+                engine.EPRuntime.SendEvent(
+                    new PropertiesEvent
+                    {
+                        Properties = new Dictionary<string, object>()
+                        {
+                            {"value", "1"}
+                        }
+                    }
+                );
+            }
+
+            var result = string.Format("{0}\n\n{1}", resultProperties, ResultsToString(results));
+
+            Assert.Equal(FormatResult(expected), result);
+        }
+
         [Fact]
         public void GroupByRegression()
         {

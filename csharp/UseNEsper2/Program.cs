@@ -8,17 +8,20 @@ namespace UseNEsper2
         static void Main(string[] args)
         {
             // execute the tests with the poors' man runner...
+            RunTest("CastPropertyToIntRegression", new EplTests().CastPropertyToIntRegression);
+            RunTest("GroupByRegression", new EplTests().GroupByRegression);
+        }
 
-            var tests = new EplTests();
-
+        private static void RunTest(string title, Action test)
+        {
             try
             {
-                tests.GroupByRegression();
-                Console.WriteLine("AOKAY!");
+                test();
+                Console.WriteLine("OKAY {0}", title);
             }
-            catch (XunitException e)
+            catch (Exception e)
             {
-                Console.Error.WriteLine(e);
+                Console.Error.WriteLine("FAIL {0}: {1}", title, e);
             }
         }
     }
