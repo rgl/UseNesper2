@@ -14,10 +14,11 @@ namespace UseNEsper2
             try
             {
                 tests.GroupByRegression();
+                Console.WriteLine("AOKAY!");
             }
             catch (XunitException e)
             {
-                Console.WriteLine(e);
+                Console.Error.WriteLine(e);
             }
         }
     }
