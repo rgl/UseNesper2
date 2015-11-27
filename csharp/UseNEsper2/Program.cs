@@ -16,12 +16,13 @@ namespace UseNEsper2
         {
             try
             {
+                Console.WriteLine("RUN  {0}", title);
                 test();
                 Console.WriteLine("OKAY {0}", title);
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("FAIL {0}: {1}", title, e);
+                Console.Error.WriteLine("FAIL {0}: {1}\n\n", title, e);
             }
         }
     }
