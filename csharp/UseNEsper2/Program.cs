@@ -10,6 +10,7 @@ namespace UseNEsper2
             // execute the tests with the poors' man runner...
             RunTest("CastPropertyToIntRegression", new EplTests().CastPropertyToIntRegression);
             RunTest("GroupByRegression", new EplTests().GroupByRegression);
+            RunTest("FilterStreamAboveOrEqualWithMapEventType", new EplTests().FilterStreamAboveOrEqualWithMapEventType);
         }
 
         private static void RunTest(string title, Action test)
