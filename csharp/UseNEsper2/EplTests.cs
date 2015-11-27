@@ -128,6 +128,74 @@ namespace UseNEsper2
             Assert.Equal(FormatResult(expected), result);
         }
 
+        [Fact]
+        public void FilterStreamAboveOrEqualWithMapEventType()
+        {
+            string expected;
+            string resultProperties;
+            var results = new List<EventBean[]>();
+
+            using (var engine = CreateEngine())
+            {
+                engine.EPAdministrator.Configuration.AddEventType(
+                    "ServiceHitEnd",
+                    new Dictionary<string, object>()
+                    {
+                        { "HttpStatus", typeof(Int32) }
+                    }
+                );
+
+                var statement = engine.EPAdministrator.CreateEPL(@"
+                    select count(*) as Value
+                    from ServiceHitEnd(HttpStatus >= 400).win:time_batch(1 seconds)
+                ");
+
+                resultProperties = GetStatementProperties(statement);
+
+                expected = @"
+                    Value:Int64
+
+                    #0.0: Value:Int64=2
+                    
+                    #1.0: Value:Int64=2
+                    
+                    #2.0: Value:Int64=0
+                ";
+
+                statement.Events += (sender, args) => results.Add(args.NewEvents);
+
+                for (var n = 200; n < 600; n += 100)
+                {
+                    engine.EPRuntime.SendEvent(
+                        new Dictionary<string, object>()
+                        {
+                            { "HttpStatus", n }
+                        },
+                        "ServiceHitEnd"
+                    );
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(1.5));
+
+                for (var n = 200; n < 600; n += 100)
+                {
+                    engine.EPRuntime.SendEvent(
+                        new Dictionary<string, object>()
+                        {
+                            { "HttpStatus", n }
+                        },
+                        "ServiceHitEnd"
+                    );
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(2.5));
+            }
+
+            var result = string.Format("{0}\n\n{1}", resultProperties, ResultsToString(results));
+
+            Assert.Equal(FormatResult(expected), result);
+        }
+
         private static EPServiceProvider CreateEngine()
         {
             var configuration = new Configuration();
